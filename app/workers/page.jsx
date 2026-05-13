@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Autocomplete } from '@react-google-maps/api';
@@ -87,7 +87,7 @@ function WorkerCard({ worker }) {
   );
 }
 
-export default function WorkersPage() {
+function WorkersContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [workers, setWorkers] = useState([]);
@@ -350,5 +350,19 @@ export default function WorkersPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function WorkersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-white">Loading...</div>
+        </div>
+      }
+    >
+      <WorkersContent />
+    </Suspense>
   );
 }
