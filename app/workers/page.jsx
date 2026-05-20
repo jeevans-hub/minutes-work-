@@ -7,8 +7,8 @@ import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Autocomplete } from '@re
 const CATEGORIES = ['all', 'Plumber', 'Electrician', 'Carpenter', 'Cleaner', 'Painter', 'HVAC', 'Mason', 'Gardener'];
 const CAT_ICONS = { all: '🔧', Plumber: '🔧', Electrician: '⚡', Carpenter: '🪚', Cleaner: '🧹', Painter: '🎨', HVAC: '❄️', Mason: '🧱', Gardener: '🌿' };
 
+import { GOOGLE_MAPS_LIBRARIES } from '@/lib/mapConfig';
 const mapContainerStyle = { width: '100%', height: '100%' };
-const LIBRARIES = ['places'];
 
 function StarRating({ rating }) {
   return (
@@ -106,7 +106,7 @@ function WorkersContent() {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: isApiKeyValid ? googleMapsApiKey : '',
-    libraries: LIBRARIES
+    libraries: GOOGLE_MAPS_LIBRARIES
   });
 
   const handlePlaceSelect = () => {

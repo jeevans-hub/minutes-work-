@@ -17,7 +17,7 @@ export default function AIChatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+   
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping, isOpen]);

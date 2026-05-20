@@ -4,8 +4,18 @@ import User from '@/models/User';
 import { signToken } from '@/lib/auth';
 
 export async function POST(request) {
+  // Separate DB connection from request logic so errors are distinct
   try {
     await connectDB();
+  } catch (dbError) {
+    console.error('Register DB error:', dbError.message);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable. Please try again shortly.' },
+      { status: 503 }
+    );
+  }
+
+  try {
     const { name, email, password, role, phone, category, skills, experience, referralCode } = await request.json();
 
     if (!name || !email || !password) {
@@ -32,7 +42,7 @@ export async function POST(request) {
       if (referrer) {
         userData.referredBy = referrer._id;
         userData.walletBalance = 50; // New user gets 50 credits
-        
+
         referrer.walletBalance += 100; // Referrer gets 100 credits
         referrer.referralCount += 1;
         await referrer.save();
@@ -67,6 +77,9 @@ export async function POST(request) {
     return response;
   } catch (error) {
     console.error('Register error:', error);
-    return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Registration failed',
+      details: error.message,
+    }, { status: 500 });
   }
 }

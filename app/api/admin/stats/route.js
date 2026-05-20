@@ -50,10 +50,51 @@ export async function GET(request) {
     ]);
     const popularServices = popularServicesAgg.map(item => ({ category: item._id, count: item.count }));
 
+    // Monthly Bookings & Revenue Trend (last 6 months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const monthlyTrendAgg = await Booking.aggregate([
+      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+          },
+          bookings: { $sum: 1 },
+          revenue: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'completed'] }, '$amount', 0],
+            },
+          },
+        },
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
+    ]);
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyTrend = monthlyTrendAgg.map((item) => ({
+      month: `${monthNames[item._id.month - 1]} ${item._id.year}`,
+      bookings: item.bookings,
+      revenue: item.revenue,
+    }));
+
+    // Booking Status Breakdown
+    const statusBreakdownAgg = await Booking.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]);
+    const statusBreakdown = statusBreakdownAgg.map((item) => ({
+      status: item._id,
+      count: item.count,
+    }));
+
     const responseData = {
       stats: { totalUsers, totalWorkers, totalBookings, pendingBookings, completedBookings, blockedUsers, totalRevenue, totalDisputes },
       recentBookings,
       popularServices,
+      monthlyTrend,
+      statusBreakdown,
     };
 
     setCache(CACHE_KEY, responseData, 300); // Cache for 5 mins

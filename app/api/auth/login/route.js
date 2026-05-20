@@ -6,6 +6,15 @@ import { signToken } from '@/lib/auth';
 export async function POST(request) {
   try {
     await connectDB();
+  } catch (dbError) {
+    console.error('Login DB error:', dbError.message);
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable. Please try again shortly.' },
+      { status: 503 }
+    );
+  }
+
+  try {
     const { email, password } = await request.json();
 
     if (!email || !password) {

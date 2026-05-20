@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { GoogleMap, useJsApiLoader, Marker, DirectionsRenderer } from '@react-google-maps/api';
 
-const LIBRARIES = ['places'];
+import { GOOGLE_MAPS_LIBRARIES } from '@/lib/mapConfig';
 import ChatBox from '@/components/ChatBox';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -44,7 +44,7 @@ export default function BookingDetailsPage() {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: isApiKeyValid ? googleMapsApiKey : '',
-    libraries: LIBRARIES
+    libraries: GOOGLE_MAPS_LIBRARIES
   });
 
   const fetchBooking = useCallback(async () => {

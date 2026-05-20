@@ -28,31 +28,39 @@ export function AuthProvider({ children }) {
   }, [fetchUser]);
 
   const login = async (email, password) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setUser(data.user);
-      return { success: true, user: data.user };
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: data.error || 'Login failed. Please try again.' };
+    } catch {
+      return { success: false, error: 'Network error. Please check your connection.' };
     }
-    return { success: false, error: data.error };
   };
 
   const register = async (userData) => {
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setUser(data.user);
-      return { success: true, user: data.user };
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: data.error || 'Registration failed. Please try again.', details: data.details };
+    } catch {
+      return { success: false, error: 'Network error. Please check your connection.' };
     }
-    return { success: false, error: data.error };
   };
 
   const logout = async () => {
