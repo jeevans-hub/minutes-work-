@@ -46,9 +46,25 @@ app.prepare().then(() => {
     });
   });
 
-  const PORT = process.env.PORT || 3000;
-  server.listen(PORT, (err) => {
-    if (err) throw err;
-    console.log(`> Ready on http://localhost:${PORT}`);
-  });
+  const BASE_PORT = parseInt(process.env.PORT, 10) || 3000;
+  const MAX_RETRIES = 10;
+
+  function startServer(port, attempt = 0) {
+    server.listen(port, () => {
+      console.log(`> Ready on http://localhost:${port}`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE' && attempt < MAX_RETRIES) {
+        console.log(`⚠ Port ${port} is in use, trying ${port + 1}...`);
+        server.close();
+        startServer(port + 1, attempt + 1);
+      } else {
+        console.error(`✖ Failed to start server:`, err.message);
+        process.exit(1);
+      }
+    });
+  }
+
+  startServer(BASE_PORT);
 });
